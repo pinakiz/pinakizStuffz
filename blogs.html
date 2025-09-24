@@ -6,35 +6,55 @@
   <title>Pinakiz Blogs</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    @font-face {
+      font-family: 'PinakizFont';
+      src: url('./fonts/') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     body {
-      font-family: 'Times New Roman', Times, serif;
+      font-family: 'PinakizFont','Times New Roman', Times, serif;
     }
   </style>
 </head>
-<body class="bg-neutral-900 min-h-screen">
+<body class="bg-black min-h-screen">
 
-  <!-- Header -->
-    <div class = "bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1745236615212-63cab2e290fa?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
-    <a href="./index.html"><p class="text-5xl"><</p></a> 
-    <div class="bg-cover bg-center text-center" style="padding: 10rem">
-      <p class="text-8xl font-display text-black">
-        Pinakiz Blog
-      </p>
+  <header class="relative bg-cover bg-center" style="background-image: url('img/5.jpg');">
+    
+    <a href="./index.html" class="absolute top-4 left-4 text-black text-5xl hover:opacity-70 transition-opacity">
+      &lt;
+    </a>
+    
+    <div class="text-center py-24 md:py-40">
+      <h1 class="text-7xl md:text-8xl font-display text-black">
+        Pinakiz 
+      </h1>
     </div>
-  </div>
+  </header>
 
-  <!-- Blog list -->
-  <div class="text-white p-10 font-serif">
+  <main class="px-6 py-12 md:px-12 font-serif">
 
-    <ul class="flex flex-col gap-4 max-w-3xl mx-auto">
-      <li class="flex justify-between border-b border-gray-600 py-2">
-        <span class="text-gray-400 text-sm">8th August, 2025</span>
-    <a href="./blogs/backend/zero-space.html" class="font-bold text-white hover:underline text-xl">Zero-space </a>
+    <ul class="flex flex-col gap-6 max-w-4xl mx-auto">
+      
+      <li class="flex flex-col sm:flex-row justify-between sm:items-center w-full py-2 border-b border-gray-800">
+        <span class="text-gray-400 text-sm mb-1 sm:mb-0">September 15, 2025</span>
+        <a href="#" class="font-bold text-white hover:underline text-xl">On Scaling Systems</a>
       </li>
-      <!-- Add more blogs here in the same style -->
-    </ul>
 
-  </div>
+      <li class="flex flex-col sm:flex-row justify-between sm:items-center w-full py-2 border-b border-gray-800">
+        <span class="text-gray-400 text-sm mb-1 sm:mb-0">August 8, 2025</span>
+        <a href="./blogs/backend/zero-space.html" class="font-bold text-white hover:underline text-xl">Zero-space</a>
+      </li>
+
+      <li class="flex flex-col sm:flex-row justify-between sm:items-center w-full py-2 border-b border-gray-800">
+        <span class="text-gray-400 text-sm mb-1 sm:mb-0">July 23, 2025</span>
+        <a href="#" class="font-bold text-white hover:underline text-xl">An Introduction to Machine Learning</a>
+      </li>
+
+      </ul>
+
+  </main>
 
 </body>
 </html>
