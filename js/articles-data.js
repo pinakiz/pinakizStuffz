@@ -21,9 +21,9 @@
    ================================================================ */
 const ARTICLES = [
   {
-    id: 'blog-1', url: 'blog-on-slow-mornings.html', section: 'blog',
-    title: 'On Slow Mornings', tag: 'Journal',
-    excerpt: 'A small ritual, and why I\'ve stopped rushing it'
+    id: 'blog-1', url: 'blog-RACKKV.html', section: 'blog',
+    title: 'RackKV: A Storage Engine', tag: 'System',
+    excerpt: 'I wanted to understand how storage engines really work, so I built one from scratch. RackKV is a Bitcask-inspired key-value store written in Go that explores append-only logs, in-memory indexing, crash recovery, and compaction.'
   }
 
   /* --- Add new articles below this line --- 

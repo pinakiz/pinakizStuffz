@@ -34,7 +34,7 @@ function renderCards(section, containerId){
   if(!container) return;
   const list = bySection(section).slice(0, 3);
   if(!list.length){
-    container.innerHTML = `<div class="empty-note">No ${SECTION_LABEL[section].toLowerCase()} entries yet — add one in js/articles-data.js.</div>`;
+    container.innerHTML = `<div class="empty-note">No ${SECTION_LABEL[section].toLowerCase()} entries yet`;
     return;
   }
   container.innerHTML = list.map(a => `
