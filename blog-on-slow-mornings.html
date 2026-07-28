@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On Slow Mornings · Piyush</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Google Analytics (GA4) — replace G-XXXXXXXXXX with your real Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">Piyush</div>
+          <div class="brand-tag">writing &amp; small studies</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-group">
+          <a class="nav-link top" href="index.html">
+            Home
+            <span class="squiggle"><svg viewBox="0 0 100 6" preserveAspectRatio="none"><path d="M0,4 Q10,0 20,4 T40,4 T60,4 T80,4 T100,4"/></svg></span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Blog</div>
+          <div id="nav-blog"></div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Paperself</div>
+          <div id="nav-paper"></div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-pill"><span class="status-dot"></span> currently editing a draft</span>
+        <div class="socials">
+          <a href="#" onclick="return false;">email</a>
+          <a href="#" onclick="return false;">github</a>
+          <a href="#" onclick="return false;">notes</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 6l-6 6 6 6"/>
+    </svg>
+  </div>
+
+  <main class="view-enter">
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      Back home
+    </a>
+    <div class="post">
+      <div class="post-eyebrow">Blog · Project</div>
+      <h1>I wanted to understand the storage engine, so I built one: Rack KV</h1>
+      <div class="post-meta">July 2026</div>
+      <p >When making an app that requires some level of persistence, I usually just make a DB call. It's so simple and reliable that, most of the time, I don't have to worry about it. But why is the abstraction of a database so reliable? How do storage engines work with such reliability and efficiency? How are hundreds of thousands of operations per second handled by a DB server without losing or mixing things up? How do databases maintain reliability while scaling to global systems? And many more such questions arose in my mind.
+So, I decided to go a little deeper into the abstraction layer of the persistence layer.
+</p>
+        <h2>Going Down the Rabbit Hole</h2>
+      <p>So, my curiosity led me to explore further, stumbling across many blogs and research papers. A few of the fundamentals that I found crucial to grasp before diving into this never-ending sea of storage engines were:
+
+      </p>
+      <ul>
+  <li>B-Trees</li>
+  <li>LSM Trees</li>
+  <li>SSTables</li>
+  <li>Write-Ahead Logging (WAL)</li>
+</ul>
+<p>While exploring, I stumbled across a white paper released by Riak called Bitcask. I found it interesting enough to implement myself.
+</p>
+<section>
+  <p>
+    Before heading into the implementation, I also needed to understand several
+    important concepts:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Consistency:</strong>
+      Data should remain correct and durable under concurrent writes and
+      unexpected crashes.
+    </li>
+
+    <li>
+      <strong>File I/O:</strong>
+      Handling log files, buffered I/O, file descriptors, flushing data to disk,
+      and <code>fsync</code>.
+    </li>
+
+    <li>
+      <strong>Storage Data Structures:</strong>
+      Hash maps, B-Trees, LSM Trees, SSTables, and append-only logs.
+    </li>
+
+    <li>
+      <strong>Write-Ahead Logging (WAL):</strong>
+      Logging writes before flushing them to disk to make data more durable.
+    </li>
+
+    <li>
+      <strong>Benchmarking & Profiling:</strong>
+      Measuring throughput, latency, memory usage, and identifying bottlenecks.
+    </li>
+
+    <li>
+      <strong>Testing Concurrent Systems:</strong>
+      Detecting race conditions and validating correctness under load.
+    </li>
+  </ul>
+</section>
+<section>
+  <h2>Designing RackKV</h2>
+
+  <p>
+    Let’s first try to understand the problem statement and try solving this using first principles.
+  </p>
+
+  <p>
+    The problem statement should be simple, right?
+  </p>
+
+  <p>
+    This is just a storage engine; the most basic operations it is expected to do are store the data (PUT) and fetch the data(GET).
+  </p>
+
+  <p>
+    The simplest storage engine would be an in-memory hashmap. But an in-memory solution will not survive a system crash or a power failure or a simple restart. Clearly, an in-memory hashmap isn’t enough.
+  </p>
+
+  <p>
+    How about we maintain a file on disk, which gets appended after each write?
+  </p>
+
+  <p>
+    This would make data durable. We should add other metadata along with this, like a timestamp and checksum. Checksum would help us check the integrity of the data (Assume a case when the system crashes in between the disk write; checksum will help us filter out these cases).
+  </p>
+<img src="static/entry_format.png" style="width: 100%;height: auto;" >
+  <p>
+    Okay...The data is written in a file on the disk; to GET this data, the engine would have to go through each entry of every data file. This would make our reads very expensive.
+  </p>
+
+  <p>
+    How about we also maintain an in-memory hashmap along with the append-only logs on the disk, which will get the key-value pair entry after the entry has been written to the disk.
+  </p>
+
+  <p>
+    This would make the read just an in-memory lookup. Making read an O(1) operation.
+  </p>
+
+  <p>
+    But here is the thing: imagine you have:
+  </p>
+
+  <ul>
+    <li>100 million keys</li>
+    <li>Average value size = 2 KB,</li>
+  </ul>
+
+  <p>
+    Keeping all values in RAM would require about 200 GB of memory.
+  </p>
+  
+  <p>
+    Instead, we can store the offset of the value in the file.
+  </p>
+  <img src="static/Key_dir_entry_format.png" style="width: 100%;height: auto;" > 
+  
+  <p>
+    That’s only a few dozen bytes, while the values stay on the disk.
+  </p>
+
+  <p>
+    When there are hundreds of thousands of write operations per second, writing each entry to disk at a time would be a bottleneck, as the disk writes are expensive. So to improve throughput, we can first buffer incoming writes in memory and then flush them to disk in batches.
+  </p>
+
+  <p>
+    But what happens if the system crashes while a batch is still being formed, before it has been flushed to disk? In this case, the data will get lost, but this is just a tradeoff between very rare data losses vs significantly faster writes.
+  </p>
+
+  <p>
+    So, the PUT Pipeline would be assembled to this.
+  </p>
+<img src="static/PUT_pipeline.png"width: 100%;height: auto;" >
+
+  <p>
+    To GET the data, now the engine would just look up the key-dir(in-memory hashmap); if the key is not there, then it will simply return NIL. Otherwise, it would get the fileID and the offset, read from the data file identified by the file ID, verify the CRC for integrity, and finally return the value.
+  </p>
+
+  <p>
+    To delete a key, we simply add an entry containing the key and a tombstone, marking that key as deleted.
+  </p>
+
+  <p>
+    So far, so good, but we still need to make this system fault-tolerant and recoverable. After a restart, the engine could scan the data files and rebuild the KeyDir, but iterating over all the entries would be inefficient because there could be a lot of redundant records. To optimize this recovery process, we use Hint Files (more on that ahead).
+  </p>
+
+
+  <h3>Hint Files</h3>
+
+  <p>
+    These are lightweight metadata files, used to rebuild the in-memory index (KeyDir) during recovery. They are generated during the compaction process and contain only the metadata required to reconstruct the KeyDir, eliminating the need to scan the entire data files.
+  </p>
+
+
+  <h3>Compaction</h3>
+
+  <p>
+    Compaction is the garbage collection process. Over time, we would have large data files with many redundant keys. Since RackKV never updates records in place, old versions and deleted keys accumulate over time. So, compaction cleans this up by creating new files that contain only the latest live values.
+  </p>
+
+  <p>
+    Where does it get the latest values? Remember, the KeyDir already has the location of the latest values. It just has to iterate over the data files, use the KeyDir as a reference, and write the live values to the merged file. After writing to the merged file, we have to update the value's offset in the KeyDir. Once we have iterated over all the files, we can simply flush the merged data.
+  </p>
+
+  <p>
+    We then atomically swap the files, delete the old ones, and rename the merged file (e.g., <code>merge.data</code> → <code>000001.data</code>).
+  </p>
+
+  <p>
+    This helps us reclaim disk space, reduce stale entries, and improve read performance.
+  </p>
+
+
+  <h3>File Roll-over</h3>
+
+  <p>
+    Instead of using a single large file, the files are rolled over if the current file exceeds a certain threshold size. This keeps files manageable, makes recovery faster, and simplifies operations like compaction by working with smaller immutable files.
+  </p>
+
+
+  <h3>Concurrency</h3>
+
+  <p>
+    Now, Let’s talk about concurrency. One of the most interesting design choices in Bitcask is how it handles concurrency. Instead of allowing multiple writers simultaneously, the write path is serialized through a single writer. This sacrifices write parallelism but greatly simplifies correctness.
+  </p>
+
+  <p>
+    Since the writes are appended sequentially to the active data file, there is no need to handle multiple writers updating the file at the same time.
+  </p>
+
+  <p>
+    To ensure one writer, I used a lock file, which acquires the lock if there is no existing writer, and forbids the formation of other writers.
+  </p>
+
+  <p>
+    However, reads can happen concurrently, since the KeyDir is in-memory and the data files are immutable once rolled over; multiple readers can safely fetch data.
+  </p>
+
+  <h3>Afterword</h3>
+  <p>
+    Building RackKV taught me that databases are less about clever algorithms and more about carefully balancing trade-offs. Every design choice- append-only logs, in-memory indexes, batching writes, tombstones, or compaction— optimizes one aspect while sacrificing another. It gave me a much deeper appreciation for the engineering behind systems we use every day without thinking.
+  </p>
+
+<p>
+  This was a very high-level overview of the implementation. To dive deeper into how everything works, I recommend exploring the source code in the
+  <a href="https://github.com/pinakiz/rackKV/tree/main" style="color: #557317;" target="_blank" rel="noopener noreferrer">repository</a>
+  or reading the original
+  <a href="https://riak.com/assets/bitcask-intro.pdf" style="color: #557317;" target="_blank" rel="noopener noreferrer">Bitcask paper</a>.
+</p></section>    <footer class="page-footer">Thanks for reading. Back to <a href="index.html" style="color:var(--accent-deep);">the homepage</a>.</footer>
+  </main>
+</div>
+
+<script src="js/articles-data.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

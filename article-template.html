@@ -1,0 +1,100 @@
+<!--
+  TEMPLATE FOR A NEW ARTICLE
+  1. Duplicate this file, rename it (e.g. blog-my-new-post.html).
+  2. Edit the <title>, and inside <div class="post"> edit the
+     eyebrow/tag, heading, meta line, lede, and paragraphs.
+  3. Open js/articles-data.js and add one entry pointing "url" at
+     your new filename — that makes it show up in the sidebar and
+     on the home page automatically.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your New Post Title · Piyush</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Google Analytics (GA4) — replace G-XXXXXXXXXX with your real Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">Piyush</div>
+          <div class="brand-tag">writing &amp; small studies</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-group">
+          <a class="nav-link top" href="index.html">
+            Home
+            <span class="squiggle"><svg viewBox="0 0 100 6" preserveAspectRatio="none"><path d="M0,4 Q10,0 20,4 T40,4 T60,4 T80,4 T100,4"/></svg></span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Blog</div>
+          <div id="nav-blog"></div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Paperself</div>
+          <div id="nav-paper"></div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-pill"><span class="status-dot"></span> currently editing a draft</span>
+        <div class="socials">
+          <a href="#" onclick="return false;">email</a>
+          <a href="#" onclick="return false;">github</a>
+          <a href="#" onclick="return false;">notes</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 6l-6 6 6 6"/>
+    </svg>
+  </div>
+
+  <main class="view-enter">
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      Back home
+    </a>
+    <div class="post">
+      <div class="post-eyebrow">Blog · Journal</div>
+      <h1>Your New Post Title</h1>
+      <div class="post-meta">Month Year · N min read</div>
+      <p class="lede">The opening line, a little larger than the rest — this is the lede.</p>
+      <p>A normal paragraph.</p>
+      <p class="pull">A short standout quote pulled from the piece.</p>
+      <p>Another normal paragraph.</p>
+    </div>
+    <footer class="page-footer">Thanks for reading. Back to <a href="index.html" style="color:var(--accent-deep);">the homepage</a>.</footer>
+  </main>
+</div>
+
+<script src="js/articles-data.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

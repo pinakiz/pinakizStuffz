@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piyush</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Google Analytics (GA4) — replace G-XXXXXXXXXX with your real Measurement ID.
+     This snippet is repeated at the top of every page (standard for static
+     sites without a build step) so each page reports its own pageviews
+     automatically — no extra JS needed, real navigation triggers it. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">Piyush</div>
+          <div class="brand-tag">writing &amp; small studies</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-group">
+          <a class="nav-link top active" href="index.html">
+            Home
+            <span class="squiggle"><svg viewBox="0 0 100 6" preserveAspectRatio="none"><path d="M0,4 Q10,0 20,4 T40,4 T60,4 T80,4 T100,4"/></svg></span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Blog</div>
+          <div id="nav-blog"></div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Paperself</div>
+          <div id="nav-paper"></div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-pill"><span class="status-dot"></span> currently editing a draft</span>
+        <div class="socials">
+          <a href="#" onclick="return false;">email</a>
+          <a href="#" onclick="return false;">github</a>
+          <a href="#" onclick="return false;">notes</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 6l-6 6 6 6"/>
+    </svg>
+  </div>
+
+  <main class="view-enter">
+    <div class="hero">
+      <span class="eyebrow">Hello, I'm glad you're here</span>
+      <h1>I'm Piyush — I write, tinker, and think <em>slowly</em> on purpose.</h1>
+      <p>This is a small corner of the internet for half-finished thoughts, longer essays, and the odd project. No newsletter pop-ups, no urgency — just a place to read at your own pace. Have a look around.</p>
+      <div class="hero-cta">
+        <button class="btn primary" onclick="goToLatest('blog')">Read the latest post</button>
+        <button class="btn" onclick="goToLatest('paper')">Browse Paperself</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-block">
+      <div class="section-head">
+        <h2>From the blog</h2>
+        <span class="see-all" onclick="goToLatest('blog')">see all →</span>
+      </div>
+      <div class="card-grid" id="blog-cards"></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-block">
+      <div class="section-head">
+        <h2>Paperself</h2>
+        <span class="see-all" onclick="goToLatest('paper')">see all →</span>
+      </div>
+      <div class="card-grid" id="paper-cards"></div>
+    </div>
+
+    <footer class="page-footer">
+      Made slowly, in a text editor, with too much tea. © Piyush.
+    </footer>
+  </main>
+</div>
+
+<script src="js/articles-data.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
